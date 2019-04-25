@@ -3,5 +3,5 @@ project(MyCloud)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(LinuxSystemLearn main.cpp)
-#target_link_libraries(MyCloud)
+add_executable(LinuxSystemLearn main.cpp src/tool/ConPool/ConPool.cpp src/tool/ConPool/ConPool.h)
+target_link_libraries(MyCloud mysqlclient)
