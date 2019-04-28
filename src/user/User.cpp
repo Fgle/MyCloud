@@ -4,6 +4,14 @@
 
 #include "User.h"
 
+User& User::operator=(User const &user) {
+        this->_usermame = user._usermame;
+        this->_password = user._password;
+        this->_home = user._home;
+        this->_permission = user._permission;
+        this->_size = user._size;
+}
+
 void User::SetUsername(const std::string &username) {
     this->_usermame = username;
 }

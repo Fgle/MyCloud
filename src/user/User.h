@@ -18,7 +18,9 @@ private:
     std::string _size;           //用户磁盘大小
 public:
     User() = default;
+    User &operator = (User const &user);
     ~User() = default;
+
 
     void SetUsername(const std::string &username);
     std::string GetUsername() const ;

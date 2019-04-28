@@ -11,61 +11,51 @@
 #include <thread>
 #include <mutex>
 
-class ConnPool {
+#include "../database/DBInfo.h"
+
+class ConnPool : public mysqlpp::ConnectionPool{
 public:
-    ~ConnPool();
     // 获取数据库连接
-    mysqlpp::Connection* GetConnection();
+    mysqlpp::Connection* grab() override ;
     // 将数据库连接放回到连接池的容器中
-    void ReleaseConnection(mysqlpp::Connection *conn);
+    void release(const mysqlpp::Connection* coon) override ;
+    //void remove(const mysqlpp::Connection* conn);
     // 获取数据库连接池对象
     static ConnPool* GetInstance();
+    ~ConnPool() override {
+        clear();
+    }
+    inline int getSize() {
+        return mysqlpp::ConnectionPool::size();
+    }
 
-private:
-    // 当前已建立的数据库连接数量
-    int cur_size;
-    // 连接池定义的最大数据库连接数
-    int max_size;
-    std::string username;
-    std::string password;
-    std::string url;
-    std::string db_mane;
-    int port;
-    // 连接池容器
-    std::list<mysqlpp::Connection*> conn_list;
-    // 线程锁
-    std::mutex mx;
-    static ConnPool* connPool;
-//    mysqlpp::Driver* driver;
-
+protected:
     /*** 创建一个连接 ***/
-    mysqlpp::Connection* CreateConnection();
-    /*** 初始化数据库连接池 ***/
-    void InitConnection(int);
+    mysqlpp::Connection* create() override ;
     /*** 销毁数据库连接对象 ***/
-    void DestoryConnection(mysqlpp::Connection *conn);
-    /*** 销毁数据库连接池 ***/
-    void DestoryConnPool();
+    void destroy(mysqlpp::Connection* cp) override ;
+    unsigned int max_idle_time() override ;
     /*** 构造方法 ***/
-    ConnPool();
+    ConnPool() = default;
     /***set() and get()函数***/
-    void SetDBName(const std::string&);
-    std::string GetDBName() const ;
+    void SetMaxIdleTime(int);
+    const int GetMaxIdleTime() const;
 
-    void SetUrl(const std::string&);
-    std::string GetUrl() const;
-
-    void SetUserName(const std::string&);
-    std::string GetUserName() const;
-
-    void SetPassword(const std::string&);
-    std::string GetPassword() const;
 
     void SetMaxSize(int);
-    int GetMaxSize() const;
+    const int GetMaxSize() const;
 
-    void SetPort(int);
-    int GetPort() const;
+    const int GetConnUse() const;
+
+    void SetDBInfo(const DBInfo &info_);
+private:
+    DBInfo info;
+    int         f_max_idle_time;    //
+    unsigned int f_conns_in_use_;   //正在使用的链接
+    int f_max_size;                 //最大连接数
+    std::mutex mx;                  //线程
+    static ConnPool *conn_pool;
+
 };
 
 
